@@ -1,0 +1,8 @@
+.idea
+/node_modules
+npm-debug.log
+.DS_Store
+/*.env
+/client/node_modules
+/client/build
+/config/production.json
