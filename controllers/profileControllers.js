@@ -1,10 +1,9 @@
-const path = require('path')
 const config = require('config')
 const bcrypt = require('bcryptjs')
 const fieldValidation = require('../utils/fieldValidation')
 const User = require('../models/User')
 const errorHandler = require('../utils/errorHandler')
-const normalizeImage = require('../utils/normalizeImage')
+const saveFileToCloudinary = require('../utils/saveFileToCloudinary')
 
 module.exports.autoLogin = async (req, res) => {
   try {
@@ -37,29 +36,21 @@ module.exports.updateUserInfo = async (req, res) => {
         message: 'Вы ввели неправильный пароль!'
       })
     } else {
-      let objectToUpdate
       const hashedPassword = newPassword
         ? await bcrypt.hash(newPassword, 12)
         : user.password
 
-      if (req.file) {
-        normalizeImage(req.file)
-        const pathToFile = path.join(config.get('DbFilePath'), req.file.filename)
+      let objectToUpdate = {
+        password: hashedPassword,
+        firstName,
+        middleName,
+        surName,
+      }
 
-        objectToUpdate = {
-          password: hashedPassword,
-          firstName,
-          middleName,
-          surName,
-          image: pathToFile
-        }
-      } else {
-        objectToUpdate = {
-          password: hashedPassword,
-          firstName,
-          middleName,
-          surName,
-        }
+      if (req.file) {
+        const uploadToCloudinary = await saveFileToCloudinary(req.file.path, res)
+
+        objectToUpdate.image = uploadToCloudinary.url
       }
 
       const updateUser = await User.findOneAndUpdate(
