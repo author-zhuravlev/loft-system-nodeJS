@@ -1,4 +1,4 @@
-## LoftSchool
+## Loft-system
 
 Большая домашняя работа курса по Node.js - Корпоративная система _"LoftSystem"_.
 
